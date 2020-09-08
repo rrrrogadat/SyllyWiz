@@ -45,7 +45,9 @@ with open('output.csv', 'r') as f:
     start_month = ''
     for row in inputfile:
         for i in dates:
+        # does the current datelist item match anything in the string row?
             if i in str(row):
+          #add the row splitting on whitespace to the test var
                 if str(row).split(maxsplit=2)[0].strip("[',]") in dates:
                     dom['mo'] = str(row).split(maxsplit=2)[0].strip("[',]")
                     dom['day'] =  str(row).split(maxsplit=2)[1].strip("[',]")
