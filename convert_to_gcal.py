@@ -5,11 +5,12 @@ from apiclient.discovery import build
 import pickle
 from datetime import datetime, timedelta
 
+#tabula pdf to csv conversion
 pdf_path = "c:/Users/cello/OneDrive/Documents/example_syllabus.pdf"
 dfs = tabula.read_pdf(pdf_path, pages='all')
 tabula.convert_into(pdf_path, "output.csv", output_format="csv", pages='all')
 
-
+#Google api setup
 credentials = pickle.load(open("token.pkl", "rb"))
 service = build("calendar", "v3", credentials=credentials)
 result = service.calendarList().list().execute()
@@ -17,24 +18,24 @@ calendar_id = result['items'][1]['id']
 result = service.events().list(calendarId=calendar_id).execute()
 result['items'][0]
 
-
+#string to date int helper function
 def convertToDate(mo):
     dates = {'Sept': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12}
     for key, value in dates.items():
         if key == mo:
             return value
 
-
+#convert each event into a gcal json object
 def convertToJson(summary, descr, dom):
     today = datetime.today()
-    start_time = datetime(2020, int(convertToDate(dom['mo'])), int(dom["day"]), 6, 30, 0)
+    start_time = datetime(today.year, int(convertToDate(dom['mo'])), int(dom["day"]), 6, 30, 0)
     end_time = start_time + timedelta(hours=1)
 
     event = {
-        'summary': str(summary),                                       # Summary here
-        'description': str(descr),                                     # Desciption here
+        'summary': str(summary),                                        # Summary here
+        'description': str(descr),                                      # Desciption here
         'start': {
-        'dateTime': start_time.strftime("%Y-%m-%dT%H:%M:%S"),   # Start time here
+        'dateTime': start_time.strftime("%Y-%m-%dT%H:%M:%S"),           # Start time here
         'timeZone': 'America/Los_Angeles',
             },
         'end': {
@@ -71,6 +72,6 @@ def main():
                         dom['day'] = str(row).split()[6].strip("[',]")
 
                     service.events().insert(calendarId=calendar_id, body=convertToJson(summary, '', dom)).execute()
-                    
+
 
 main()
